@@ -21,8 +21,6 @@ $(document).ready(function() {
   $pokeballListEl = $('.pokeballs');
 
   $('#generate-random-poke').on('click', function(e) {
-    // get a random pokemon from the database and
-    // attach it to the DOM (with the large template)
     $.ajax({
       url:  '/pokemons?random=true',
       type: 'GET',
@@ -33,6 +31,7 @@ $(document).ready(function() {
       attachLargePokemonTemplate(data);
     });
   });
+
 
   $.ajax({
     url: '/pokeballs',
@@ -57,6 +56,7 @@ $(document).ready(function() {
     }
   });//ajax
 
+  loadPokeballs();
 });
 
 // Utility function!
