@@ -52,7 +52,7 @@ var $templatePokemonSmall = function(attributes) {
   // to insert into your Poké ball!
 }
 
-// Click methods 
+// Click methods
 var catchPokemon = function(e) {
   $chosen_player = $('.chosen').children().first();
   $pokemon       = $(e.target).parent();
@@ -97,6 +97,17 @@ $(document).ready(function() {
   $('#generate-random-poke').on('click', function(e) {
     // get a random pokemon from the database and
     // attach it to the DOM (with the large template)
+    e.preventDefault();
+
+    $.ajax({
+      url: '/pokemons',
+      data: { random: 'true'},
+      type: 'get',
+      dataType: 'json'
+    }).done(function(data){
+      attachLargePokemonTemplate(data);
+    });
+
   });
 });
 
