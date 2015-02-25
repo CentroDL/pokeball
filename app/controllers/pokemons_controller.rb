@@ -25,13 +25,11 @@ class PokemonsController < ApplicationController
   end
 
   def create
-    @pokemon = Pokemon.new(pokemon_params)
+    pokeball = Pokeball.find params["pokeball_id"]
+    newly_caught_pokemon = Pokemon.find params["pokemon_id"]
+    pokeball.pokemons << newly_caught_pokemon
 
-    if @pokemon.save
-      render :show, status: :created, location: @pokemon
-    else
-      render json: @pokemon.errors, status: :unprocessable_entity
-    end
+    render json: pokeball
   end
 
   def update
