@@ -3,39 +3,8 @@ console.log('loaded, bru.');
 var $randomPokemon, // page element references (set on load below...)
     $newPokeball,
     $pokeballs,
-    $pokeballListEl;
-
-// Below are the functions necessary to create the HTML for a Pokemon
-// object on the screen. You need to call the first function with a
-// JS object that has the attributes id, name, pkdx_id, and image_url
-// (at least), and a string name of who can catch it
-
-var attachLargePokemonTemplate = function(attributes) {
-  clearRandomPokemon();
-  $randomPokemon.removeClass('empty');
-  $pokemon = $templatePokemonLarge(attributes, capitalize(iChoseNext()));
-  $randomPokemon.append($pokemon);
-}
-var clearRandomPokemon = function() {
-  $randomPokemon.children().fadeOut().remove();
-}
-var $templatePokemonLarge = function(attributes, person) {
-  $template = $('<div class="pokemon template large animated zoomIn">')
-               .attr('data-rid',     attributes.id) // rails id
-               .attr('data-pkdx-id', attributes.pkdx_id);
-  $('<h4>').text(attributes.name).appendTo($template);
-  $image = $('<img class="poke-sprite" width="120"/>')
-             .attr('src', attributes.image_url);
-  $('<div class="sprite-canvas">')
-    .append($image)
-    .appendTo($template);
-  $('<br>').appendTo($template);
-  $('<button type="button" class="btn btn-md btn-default" id="catch-pokemon">')
-    .text('Catch for ' + person + '!')
-    .on('click', catchPokemon)
-    .appendTo($template);
-  return $template;
-}
+    $pokeballListEl,
+    $pokemon;
 
 // Attach and template methods for new pokeballs and new pokemon in pokeballs!
 var attachPokeball = function(attributes) {
@@ -43,67 +12,6 @@ var attachPokeball = function(attributes) {
 }
 var $templatePokeball = function(attributes) {
   // create a small jQuery template for pokéballs
-}
-var attachSmallPokemonTemplate = function(attributes, elementAppendedTo) {
-  clearRandomPokemon();
-  $small = $templatePokemonSmall(attributes);
-  $small.appendTo(elementAppendedTo);
-}
-
-var $templatePokemonSmall = function(attributes) {
-  $template = $('<div>').attr('class', "pokemon template small animated zoomIn")
-                        .attr( "data-rid", attributes.id)
-                        .attr( "data-pkdx-id", attributes.image_url);
-  $("<h4>").text(attributes.name).appendTo($template);
-  $("<img>").attr("src", attributes.image_url).appendTo($template);
-
-    return $template;
-}
-
-// Click methods
-var catchPokemon = function(e) {
-  $chosen_player = $('.chosen').children().first();
-  $pokemon       = $(e.target).parent();
-  console.log($chosen_player.data('name') + ' --> ' + $pokemon.data('rid'));
-
-  $.ajax().done(function(data){
-    attachSmallPokemonTemplate(  currentPokemonData(), $chosen_player.find("panel-body") );
-  });
-
-}
-
-// these methods change the chosen pokeball and return whose pokeball it is
-var iChoseNext = function() {
-  $col    = $('.pokeball-col');
-  $chosen = $('.chosen');
-  if ($chosen.length != 0) { // if there is a chosen pokeball!
-    $next   = $chosen.next();
-    if ($next.hasClass('new-pokeball')) { // start over
-      $next = $next.siblings().first();
-    }
-    $chosen.removeClass('chosen');
-    $next.addClass('chosen');
-
-    return currentPlayer($next);
-  } else if ($col.length != 0) { // no one chosen yet!
-    $chosen = $col.first().addClass('chosen');
-
-    return currentPlayer($chosen);
-  } else { // no pokeballs!
-    return null;
-  }
-}
-var currentPlayer = function($chosen) {
-  return $chosen.children().first().data('name');
-}
-
-var currentPokemonData = function(){
-  return {
-    id:         $pokemon.data('rid'),
-    pkdx_id:    $pokemon.data('pkdx-id'),
-    name:       $pokemon.find('h4').text(),
-    image_url: $pokemon.find("img").attr("src")
-  }
 }
 
 $(document).ready(function() {
@@ -113,21 +21,42 @@ $(document).ready(function() {
   $pokeballListEl = $('.pokeballs');
 
   $('#generate-random-poke').on('click', function(e) {
-
     // get a random pokemon from the database and
     // attach it to the DOM (with the large template)
-    e.preventDefault();
-
     $.ajax({
-      url: '/pokemons',
-      data: { random: 'true'},
-      type: 'get',
+      url:  '/pokemons?random=true',
+      type: 'GET',
+      // data: { id: ... },
       dataType: 'json'
     }).done(function(data){
+      // console.log(data);
       attachLargePokemonTemplate(data);
     });
-
   });
+
+  $.ajax({
+    url: '/pokeballs',
+    type: 'get',
+    dataType: 'json'
+  }).done(function(trainers){
+    for( var i = 0, len = trainers.length; i < len; i++){
+      var id = trainers[i].id;
+      $.ajax({ url: '/pokeballs/' + id,
+              type: 'get',
+          dataType: 'JSON'
+      }).done(function(pokeball_details){
+        // console.log(pokemon);
+        var pokemons = pokeball_details.pokemons;
+        var name = pokeball_details.pokeball.name.toLowerCase();
+        var $list = $('[data-name='+name+']');
+
+        for(var j =0, len = pokemons.length; j < len; j++){
+          attachSmallPokemonTemplate(pokemons[j], $list.find('.panel-body'));
+        }
+      });
+    }
+  });//ajax
+
 });
 
 // Utility function!
