@@ -113,6 +113,7 @@ $(document).ready(function() {
   $pokeballListEl = $('.pokeballs');
 
   $('#generate-random-poke').on('click', function(e) {
+
     // get a random pokemon from the database and
     // attach it to the DOM (with the large template)
     e.preventDefault();
