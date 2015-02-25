@@ -31,6 +31,17 @@ var catchPokemon = function(e) {
   console.log($chosen_player.data('name') + ' --> ' + $pokemon.data('rid'));
 }
 
+var removePokemon = function(e) {
+  $pokemon = $(e.target).parent();
+  $current_player = $pokemon.parent().parent()
+  $.ajax({
+    url: '/pokeballs/' + $current_player.data('rid') + '/pokemons/' + $pokemon.data('rid'),
+    type: 'DELETE'
+  }).done(function() {
+    $pokemon.remove();
+  })
+}
+
 // these methods change the chosen pokeball and return whose pokeball it is
 var iChoseNext = function() {
   $col    = $('.pokeball-col');

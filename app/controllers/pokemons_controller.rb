@@ -41,7 +41,11 @@ class PokemonsController < ApplicationController
   end
 
   def destroy
-    @pokemon.destroy
+    # binding.pry
+    pokemon = Pokemon.find params["id"]
+    Pokeball.find(params["pokeball_id"]).pokemons.delete(pokemon)
+    
+    # @pokemon.destroy
     head :no_content
   end
 

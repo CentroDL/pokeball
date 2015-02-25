@@ -13,6 +13,6 @@ var $templatePokemonSmall = function(attributes) {
   $('<h4>').text(attributes.name).appendTo($template);
   $('<img class="poke-sprite" width="120">').attr('src', attributes.image_url)
     .appendTo($template);
-
+  $template.on('click', removePokemon)
   return $template;
 }
